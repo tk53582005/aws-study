@@ -4,9 +4,9 @@
 variables {
   db_master_password = "TestPassword123!"
   db_master_username = "admin"
-  key_name          = "aws-study-key"
-  alarm_email       = "test@example.com"
-  my_ip             = "124.209.89.41/32"
+  key_name           = "aws-study-key"
+  alarm_email        = "test@example.com"
+  my_ip              = "124.209.89.41/32"
 }
 
 run "ec2_instance_test" {
@@ -26,7 +26,7 @@ run "ec2_instance_test" {
 
   # タグが正しいか
   assert {
-    condition = aws_instance.main.tags["Name"] == "aws-study-v2-ec2-updated"
+    condition     = aws_instance.main.tags["Name"] == "aws-study-v2-ec2-updated-v2"
     error_message = "EC2インスタンスのタグ名が想定と異なります"
   }
 }
