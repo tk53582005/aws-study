@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   terraform-test:
     name: Terraform Test
@@ -15,29 +19,30 @@ jobs:
     defaults:
       run:
         working-directory: ./terraform-aws-study
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::922092352781:role/github-actions-oidc-role
+          aws-region: ap-northeast-1
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
-      
+
       - name: Terraform Format Check
         run: terraform fmt -check
-        continue-on-error: true
-      
+
       - name: Terraform Init (without backend)
         run: terraform init -backend=false
-      
+
       - name: Terraform Test
         run: terraform test
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
 
   terraform-deploy:
     name: Terraform Deploy
@@ -47,45 +52,39 @@ jobs:
     defaults:
       run:
         working-directory: ./terraform-aws-study
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::922092352781:role/github-actions-oidc-role
+          aws-region: ap-northeast-1
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
-      
+
       - name: Terraform Init
         run: terraform init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-      
+
       - name: Terraform Plan
         run: |
           terraform plan \
             -var="db_master_password=${{ secrets.DB_MASTER_PASSWORD }}" \
-            -var="db_master_username=admin" \
-            -var="key_name=aws-study-key" \
-            -var="alarm_email=kazuhiro.terahara@gmail.com" \
-            -var="my_ip=124.209.89.41/32"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-      
+            -var="db_master_username=${{ vars.TF_DB_USERNAME }}" \
+            -var="key_name=${{ vars.TF_KEY_NAME }}" \
+            -var="alarm_email=${{ vars.TF_ALARM_EMAIL }}" \
+            -var="my_ip=${{ vars.TF_MY_IP }}"
+
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
             -var="db_master_password=${{ secrets.DB_MASTER_PASSWORD }}" \
-            -var="db_master_username=admin" \
-            -var="key_name=aws-study-key" \
-            -var="alarm_email=kazuhiro.terahara@gmail.com" \
-            -var="my_ip=124.209.89.41/32"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+            -var="db_master_username=${{ vars.TF_DB_USERNAME }}" \
+            -var="key_name=${{ vars.TF_KEY_NAME }}" \
+            -var="alarm_email=${{ vars.TF_ALARM_EMAIL }}" \
+            -var="my_ip=${{ vars.TF_MY_IP }}"
