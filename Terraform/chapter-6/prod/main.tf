@@ -1,0 +1,30 @@
+# provider
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
+# backend
+terraform {
+  backend "s3" {
+    bucket = "tfstate-922092352781-handson"
+    key    = "chapter-6/prod/terraform.tfstate"
+    region = "ap-northeast-1"
+  }
+}
+
+# module の利用
+module "my_vpc" {
+  source = "../modules"
+
+  my_cidr_block = "10.0.0.0/16"
+  my_env        = "prod"
+}
