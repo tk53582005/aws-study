@@ -29,7 +29,7 @@ resource "aws_instance" "main" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
-    Name        = "${var.project_name}-ec2-updated"
+    Name        = "${var.project_name}-ec2-updated-v2"
     Environment = "production"
   }
 }
