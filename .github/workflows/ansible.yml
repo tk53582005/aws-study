@@ -1,7 +1,7 @@
 name: Ansible Deployment
 
 on:
-  workflow_dispatch:  # 手動実行
+  workflow_dispatch:
   push:
     branches:
       - feature/ansible-setup
@@ -32,6 +32,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/aws-study-key.pem
           chmod 400 ~/.ssh/aws-study-key.pem
+          # ホスト鍵確認を無効化
+          echo "Host *" > ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
       
       - name: Run Ansible Playbook
         run: |
