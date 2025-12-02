@@ -67,24 +67,36 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
+          terraform_wrapper: false
 
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Plan
         run: |
-          terraform plan -out=tfplan \
+          terraform plan -out=tfplan -no-color \
             -var="db_master_password=${{ secrets.DB_MASTER_PASSWORD }}" \
             -var="db_master_username=${{ vars.TF_DB_USERNAME }}" \
             -var="key_name=${{ vars.TF_KEY_NAME }}" \
             -var="alarm_email=${{ vars.TF_ALARM_EMAIL }}" \
             -var="my_ip=${{ vars.TF_MY_IP }}"
 
+          terraform show -no-color tfplan | tee plan_output.txt
+
+      - name: Create Plan Summary
+        run: |
+          echo "## Terraform Plan Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat plan_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
       - name: Upload Plan
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: terraform-aws-study/tfplan
+          path: |
+            terraform-aws-study/tfplan
+            terraform-aws-study/plan_output.txt
 
   terraform-apply:
     name: Terraform Apply
