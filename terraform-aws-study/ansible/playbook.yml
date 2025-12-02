@@ -1,0 +1,8 @@
+---
+- hosts: web
+  become: yes
+  tasks:
+    - name: Install Java 17 (Amazon Corretto)
+      yum:
+        name: java-17-amazon-corretto
+        state: present

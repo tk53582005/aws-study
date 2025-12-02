@@ -1,0 +1,33 @@
+name: Ansible Deployment
+
+on:
+  workflow_dispatch:  # 手動実行
+
+jobs:
+  ansible-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+      
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/aws-study-key.pem
+          chmod 400 ~/.ssh/aws-study-key.pem
+      
+      - name: Run Ansible Playbook
+        run: |
+          cd terraform-aws-study
+          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbook.yml
