@@ -35,7 +35,6 @@ jobs:
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
-        continue-on-error: true
 
       - name: Terraform Init
         run: terraform init
@@ -230,4 +229,4 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Access URLs:" >> $GITHUB_STEP_SUMMARY
           echo "- **Direct EC2 Access**: http://${{ steps.ec2-ip.outputs.EC2_IP }}:8080" >> $GITHUB_STEP_SUMMARY
-          echo "- **ALB Access**: http://${{ steps.ec2-ip.outputs.EC2_IP }}:8080" >> $GITHUB_STEP_SUMMARY
+          echo "- **ALB Access**: Check terraform outputs for ALB DNS name" >> $GITHUB_STEP_SUMMARY
