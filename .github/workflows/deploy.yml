@@ -67,6 +67,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
+        id: plan
         run: |
           terraform plan -no-color \
             -var="alarm_email=kazuhiro.terahara@gmail.com" \
@@ -74,7 +75,33 @@ jobs:
             -var="db_master_password=${{ secrets.DB_MASTER_PASSWORD }}" \
             -var="key_name=aws-study-key" \
             -var="my_ip=0.0.0.0/0" \
-            -var="db_skip_final_snapshot=true"
+            -var="db_skip_final_snapshot=true" \
+            -out=tfplan
+        continue-on-error: true
+
+      - name: Show Plan
+        id: show
+        run: |
+          terraform show -no-color tfplan > plan_output.txt
+          cat plan_output.txt
+
+      - name: Upload Plan as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: terraform-aws-study/plan_output.txt
+
+      - name: Add Plan to Job Summary
+        run: |
+          echo "## Terraform Plan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          head -100 plan_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          if [ $(wc -l < plan_output.txt) -gt 100 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Plan output truncated. Download the full plan artifact for complete details." >> $GITHUB_STEP_SUMMARY
+          fi
 
   terraform-apply:
     name: Terraform Apply
@@ -194,3 +221,11 @@ jobs:
         run: |
           echo "🎉 Deployment complete!"
           echo "Access your app at: http://${{ steps.ec2-ip.outputs.EC2_IP }}:8080"
+          
+      - name: Add Deployment Info to Summary
+        run: |
+          echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Access URLs:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Direct EC2 Access**: http://${{ steps.ec2-ip.outputs.EC2_IP }}:8080" >> $GITHUB_STEP_SUMMARY
+          echo "- **ALB Access**: Check terraform outputs for ALB DNS name" >> $GITHUB_STEP_SUMMARY
