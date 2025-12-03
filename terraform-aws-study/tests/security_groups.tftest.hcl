@@ -4,9 +4,9 @@
 variables {
   db_master_password = "TestPassword123!"
   db_master_username = "admin"
-  key_name          = "aws-study-key"
-  alarm_email       = "test@example.com"
-  my_ip             = "124.209.89.41/32"
+  key_name           = "aws-study-key"
+  alarm_email        = "test@example.com"
+  my_ip              = "124.209.89.41/32"
 }
 
 run "alb_security_group_test" {

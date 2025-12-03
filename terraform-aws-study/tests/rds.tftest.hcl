@@ -4,9 +4,9 @@
 variables {
   db_master_password = "TestPassword123!"
   db_master_username = "admin"
-  key_name          = "aws-study-key"
-  alarm_email       = "test@example.com"
-  my_ip             = "0.0.0.0/32"
+  key_name           = "aws-study-key"
+  alarm_email        = "test@example.com"
+  my_ip              = "0.0.0.0/32"
 }
 
 run "rds_instance_test" {
@@ -78,13 +78,13 @@ run "rds_subnet_group_test" {
 
   # サブネットグループ名が正しいか
   assert {
-    condition = aws_db_subnet_group.main.name == "aws-study-v2-db-subnet-group"
+    condition     = aws_db_subnet_group.main.name == "aws-study-v2-db-subnet-group"
     error_message = "RDSサブネットグループ名が想定と異なります"
   }
 
   # タグが正しいか
   assert {
-    condition = aws_db_subnet_group.main.tags["Name"] == "aws-study-v2-db-subnet-group"
+    condition     = aws_db_subnet_group.main.tags["Name"] == "aws-study-v2-db-subnet-group"
     error_message = "RDSサブネットグループのタグ名が想定と異なります"
   }
 }

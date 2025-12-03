@@ -4,9 +4,9 @@
 variables {
   db_master_password = "TestPassword123!"
   db_master_username = "admin"
-  key_name          = "aws-study-key"
-  alarm_email       = "test@example.com"
-  my_ip             = "0.0.0.0/32"
+  key_name           = "aws-study-key"
+  alarm_email        = "test@example.com"
+  my_ip              = "0.0.0.0/32"
 }
 
 run "vpc_configuration_test" {
@@ -32,7 +32,7 @@ run "vpc_configuration_test" {
 
   # VPCタグが正しいか
   assert {
-    condition = aws_vpc.main.tags["Name"] == "aws-study-v2-vpc-v2"
+    condition     = aws_vpc.main.tags["Name"] == "aws-study-v2-vpc-v2"
     error_message = "VPCのタグ名が想定と異なります"
   }
 }

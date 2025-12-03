@@ -4,9 +4,9 @@
 variables {
   db_master_password = "TestPassword123!"
   db_master_username = "admin"
-  key_name          = "aws-study-key"
-  alarm_email       = "test@example.com"
-  my_ip             = "124.209.89.41/32"
+  key_name           = "aws-study-key"
+  alarm_email        = "test@example.com"
+  my_ip              = "124.209.89.41/32"
 }
 
 run "alb_configuration_test" {
@@ -14,7 +14,7 @@ run "alb_configuration_test" {
 
   # ALB名が正しいか
   assert {
-    condition = aws_lb.main.name == "aws-study-v2-alb-v2"
+    condition     = aws_lb.main.name == "aws-study-v2-alb-v2"
     error_message = "ALB名が想定と異なります"
   }
 
@@ -32,7 +32,7 @@ run "alb_configuration_test" {
 
   # タグが正しいか
   assert {
-    condition = aws_lb.main.tags["Name"] == "aws-study-v2-alb-v2"
+    condition     = aws_lb.main.tags["Name"] == "aws-study-v2-alb-v2"
     error_message = "ALBのタグ名が想定と異なります"
   }
 }
@@ -42,7 +42,7 @@ run "target_group_test" {
 
   # ターゲットグループ名が正しいか
   assert {
-    condition = aws_lb_target_group.main.name == "aws-study-v2-tg-v2"
+    condition     = aws_lb_target_group.main.name == "aws-study-v2-tg-v2"
     error_message = "ターゲットグループ名が想定と異なります"
   }
 
