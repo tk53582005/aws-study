@@ -9,7 +9,7 @@
 
     - name: Install Java 21 (Amazon Corretto)
       yum:
-        name: java-21-amazon-corretto
+        name: java-21-amazon-corretto-devel
         state: present
 
     - name: Create app directory
@@ -31,6 +31,7 @@
       shell: |
         cd /opt/spring-boot-app
         chmod +x gradlew
+        export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
         ./gradlew clean build -x test
       args:
         creates: /opt/spring-boot-app/build/libs/*.war
@@ -42,6 +43,7 @@
     - name: Start Spring Boot app
       shell: |
         cd /opt/spring-boot-app
+        export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
         nohup java -jar build/libs/*.war > /var/log/spring-boot-app.log 2>&1 &
       async: 10
       poll: 0
