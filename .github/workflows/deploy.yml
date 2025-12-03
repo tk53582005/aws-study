@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# OIDC用のパーミッション設定
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   terraform-test:
     name: Terraform Test
@@ -17,11 +22,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
 
       - name: Setup Terraform
@@ -51,11 +55,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
 
       - name: Setup Terraform
@@ -116,11 +119,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
 
       - name: Setup Terraform
@@ -228,4 +230,4 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Access URLs:" >> $GITHUB_STEP_SUMMARY
           echo "- **Direct EC2 Access**: http://${{ steps.ec2-ip.outputs.EC2_IP }}:8080" >> $GITHUB_STEP_SUMMARY
-          echo "- **ALB Access**: Check terraform outputs for ALB DNS name" >> $GITHUB_STEP_SUMMARY
+          echo "- **ALB Access**: http://${{ steps.ec2-ip.outputs.EC2_IP }}:8080" >> $GITHUB_STEP_SUMMARY
