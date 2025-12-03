@@ -2,21 +2,10 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Install rsync
-      yum:
-        name: rsync
-        state: present
-
     - name: Install Java 21 (Amazon Corretto)
       yum:
-        name: java-21-amazon-corretto-devel
+        name: java-21-amazon-corretto
         state: present
-
-    - name: Find Java 21 installation path
-      shell: |
-        alternatives --display java | grep 'link currently points to' | awk '{print $5}' | sed 's|/bin/java||'
-      register: java_home_path
-      changed_when: false
 
     - name: Create app directory
       file:
@@ -24,34 +13,20 @@
         state: directory
         mode: '0755'
 
-    - name: Copy Spring Boot app
-      synchronize:
-        src: ../spring-boot-app/
-        dest: /opt/spring-boot-app/
-        delete: yes
-        rsync_opts:
-          - "--exclude=.gradle"
-          - "--exclude=build"
-
-    - name: Build Spring Boot app
-      shell: |
-        cd /opt/spring-boot-app
-        chmod +x gradlew
-        ./gradlew clean build -x test
-      environment:
-        JAVA_HOME: "{{ java_home_path.stdout }}"
-        PATH: "{{ java_home_path.stdout }}/bin:{{ ansible_env.PATH }}"
+    - name: Copy Spring Boot JAR
+      copy:
+        src: ../spring-boot-app-jar/app.war
+        dest: /opt/spring-boot-app/app.war
+        mode: '0644'
 
     - name: Stop old Spring Boot process
       shell: |
-        pkill -f 'spring-boot-app.*\.war' || true
+        pkill -f 'app\.war' || true
 
     - name: Start Spring Boot app
       shell: |
         cd /opt/spring-boot-app
-        nohup java -jar build/libs/*.war > /var/log/spring-boot-app.log 2>&1 &
-      environment:
-        JAVA_HOME: "{{ java_home_path.stdout }}"
+        nohup java -jar app.war > /var/log/spring-boot-app.log 2>&1 &
       async: 10
       poll: 0
 
