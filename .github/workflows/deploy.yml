@@ -67,8 +67,14 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -no-color
-        continue-on-error: true
+        run: |
+          terraform plan -no-color \
+            -var="alarm_email=kazuhiro.terahara@gmail.com" \
+            -var="db_master_username=admin" \
+            -var="db_master_password=${{ secrets.DB_MASTER_PASSWORD }}" \
+            -var="key_name=aws-study-key" \
+            -var="my_ip=0.0.0.0/0" \
+            -var="db_skip_final_snapshot=true"
 
   terraform-apply:
     name: Terraform Apply
@@ -100,7 +106,14 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: |
+          terraform apply -auto-approve \
+            -var="alarm_email=kazuhiro.terahara@gmail.com" \
+            -var="db_master_username=admin" \
+            -var="db_master_password=${{ secrets.DB_MASTER_PASSWORD }}" \
+            -var="key_name=aws-study-key" \
+            -var="my_ip=0.0.0.0/0" \
+            -var="db_skip_final_snapshot=true"
 
       - name: Get EC2 IP
         id: ec2-ip
