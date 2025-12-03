@@ -12,6 +12,12 @@
         name: java-21-amazon-corretto-devel
         state: present
 
+    - name: Find Java 21 installation path
+      shell: |
+        alternatives --display java | grep 'link currently points to' | awk '{print $5}' | sed 's|/bin/java||'
+      register: java_home_path
+      changed_when: false
+
     - name: Create app directory
       file:
         path: /opt/spring-boot-app
@@ -31,10 +37,10 @@
       shell: |
         cd /opt/spring-boot-app
         chmod +x gradlew
-        export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
         ./gradlew clean build -x test
-      args:
-        creates: /opt/spring-boot-app/build/libs/*.war
+      environment:
+        JAVA_HOME: "{{ java_home_path.stdout }}"
+        PATH: "{{ java_home_path.stdout }}/bin:{{ ansible_env.PATH }}"
 
     - name: Stop old Spring Boot process
       shell: |
@@ -43,8 +49,9 @@
     - name: Start Spring Boot app
       shell: |
         cd /opt/spring-boot-app
-        export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
         nohup java -jar build/libs/*.war > /var/log/spring-boot-app.log 2>&1 &
+      environment:
+        JAVA_HOME: "{{ java_home_path.stdout }}"
       async: 10
       poll: 0
 
